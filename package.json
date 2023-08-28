@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "json-server": "npx json-server --watch _data/db.json --port 4000"
   },
   "dependencies": {
     "autoprefixer": "10.4.15",
