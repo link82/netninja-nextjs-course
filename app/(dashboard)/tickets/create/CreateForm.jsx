@@ -1,10 +1,9 @@
-"use client" // must be in double quotes
+"use client"
 
-import React, { useState } from 'react'
-import { useRouter }  from 'next/navigation'
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 export default function CreateForm() {
-
   const router = useRouter()
 
   const [title, setTitle] = useState('')
@@ -12,36 +11,31 @@ export default function CreateForm() {
   const [priority, setPriority] = useState('low')
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e)  => {
     e.preventDefault()
     setIsLoading(true)
 
-    const res = await fetch('http://localhost:4000/tickets', {
-      method: 'POST',
-      body: JSON.stringify({
-        title,
-        body,
-        priority,
-        user_email: 'foo@bar.com'
-      }),
-      headers: {
-        'Content-Type': 'application/json'
-      }
+    const newTicket = { title, body, priority }
+
+    const res = await fetch('http://localhost:3000/api/tickets', {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(newTicket)
     })
 
-    if (res.ok) {
+    const json = await res.json()
+
+    if (json.error) {
+      console.log(`Error: ${JSON.stringify(json.error)}`)
+    }
+    if (json.data) {
       router.refresh()
       router.push('/tickets')
-    } else {
-      console.error('Error creating ticket')
     }
-
-
   }
 
   return (
-    <form className='w-1/2'
-      onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="w-1/2">
       <label>
         <span>Title:</span>
         <input
@@ -71,12 +65,12 @@ export default function CreateForm() {
         </select>
       </label>
       <button 
-          className="btn-primary" 
-          disabled={isLoading}
-        >
-        {isLoading && <span>Adding...</span>}
-        {!isLoading && <span>Add Ticket</span>}
-      </button>
+        className="btn-primary" 
+        disabled={isLoading}
+      >
+      {isLoading && <span>Adding...</span>}
+      {!isLoading && <span>Add Ticket</span>}
+    </button>
     </form>
   )
 }

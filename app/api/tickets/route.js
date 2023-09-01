@@ -19,22 +19,29 @@ export const dynamic = 'force-dynamic'
   - you use dynamic function like cookies or headers
 */
 
+// Supabase
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
+import { cookies } from "next/headers"
+
 export async function POST(request) {
   const ticket = await request.json()
 
-  const res = await fetch('http://localhost:4000/tickets', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(ticket)
-  })
-  const newTicket = await res.json()
+  // get supabase instance
+  const supabase = createRouteHandlerClient({ cookies })
 
-  // response wrapper
-  return NextResponse.json(newTicket, {
-    status: 201,
-  })
+  // get current user session
+  const { data: { session } } = await supabase.auth.getSession()
+
+  // insert the data
+  const { data, error } = await supabase.from('tickets')
+    .insert({
+      ...ticket,
+      user_email: session.user.email,
+    })
+    .select()
+    .single()
+
+  return NextResponse.json({ data, error })
 }
 
 export async function GET() {
